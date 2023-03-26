@@ -1,9 +1,3 @@
-# 第3章 移步现代C++
-
-**CHAPTER 3 Moving to Modern C++**
-
-说起知名的特性，C++11/14有一大堆可以吹的东西，`auto`，智能指针（*smart pointer*），移动语义（*move semantics*），*lambda*，并发（*concurrency*）——每个都是如此的重要，这章将覆盖这些内容。掌握这些特性是必要的，要想成为高效率的现代C++程序员需要小步迈进。在从C++98小步迈进到现代C++过程中遇到的每个问题，本章都会一一回答。你什么时候应该用{}而不是()创建对象？为什么别名（*alias*）声明比`typedef`好？`constexpr`和`const`有什么不同？常量（`const`）成员函数和线程安全有什么关系？这个列表越列越多，这章将会逐个回答这些问题。
-
 ## 条款七：区别使用`()`和`{}`创建对象
 
 **Item 7: Distinguish between `()` and `{}` when creating objects**
@@ -91,10 +85,10 @@ Widget w3{};                    //调用没有参数的构造函数构造对象
 
 在构造函数调用中，只要不包含`std::initializer_list`形参，那么花括号初始化和圆括号初始化都会产生一样的结果：
 ````cpp
-class Widget { 
-public:  
+class Widget {
+public:
     Widget(int i, bool b);      //构造函数未声明
-    Widget(int i, double d);    //std::initializer_list这个形参 
+    Widget(int i, double d);    //std::initializer_list这个形参
     …
 };
 Widget w1(10, true);            //调用第一个构造函数
@@ -104,13 +98,13 @@ Widget w4{10, 5.0};             //也调用第二个构造函数
 ````
 然而，如果有一个或者多个构造函数的声明包含一个`std::initializer_list`形参，那么使用括号初始化语法的调用更倾向于选择带`std::initializer_list`的那个构造函数。如果编译器遇到一个括号初始化并且有一个带std::initializer_list的构造函数，那么它一定会选择该构造函数。如果上面的`Widget`类有一个`std::initializer_list<long double>`作为参数的构造函数，就像这样：
 ````cpp
-class Widget { 
-public:  
+class Widget {
+public:
     Widget(int i, bool b);      //同上
     Widget(int i, double d);    //同上
     Widget(std::initializer_list<long double> il);      //新添加的
     …
-}; 
+};
 ````
 `w2`和`w4`将会使用新添加的构造函数，即使另一个非`std::initializer_list`构造函数和实参更匹配：
 
@@ -123,7 +117,7 @@ Widget w2{10, true};    //使用花括号初始化，但是现在
                         //(10 和 true 转化为long double)
 
 Widget w3(10, 5.0);     //使用圆括号初始化，同之前一样
-                        //调用第二个构造函数 
+                        //调用第二个构造函数
 
 Widget w4{10, 5.0};     //使用花括号初始化，但是现在
                         //调用带std::initializer_list的构造函数
@@ -131,8 +125,8 @@ Widget w4{10, 5.0};     //使用花括号初始化，但是现在
 ````
 甚至普通构造函数和移动构造函数都会被带`std::initializer_list`的构造函数劫持：
 ````cpp
-class Widget { 
-public:  
+class Widget {
+public:
     Widget(int i, bool b);                              //同之前一样
     Widget(int i, double d);                            //同之前一样
     Widget(std::initializer_list<long double> il);      //同之前一样
@@ -152,8 +146,8 @@ Widget w8{std::move(w4)};       //使用花括号，调用std::initializer_list�
 ````
 编译器一遇到括号初始化就选择带`std::initializer_list`的构造函数的决心是如此强烈，以至于就算带`std::initializer_list`的构造函数不能被调用，它也会硬选。
 ````cpp
-class Widget { 
-public: 
+class Widget {
+public:
     Widget(int i, bool b);                      //同之前一样
     Widget(int i, double d);                    //同之前一样
     Widget(std::initializer_list<bool> il);     //现在元素类型为bool
@@ -167,8 +161,8 @@ Widget w{10, 5.0};              //错误！要求变窄转换
 只有当没办法把括号初始化中实参的类型转化为`std::initializer_list`时，编译器才会回到正常的函数决议流程中。比如我们在构造函数中用`std::initializer_list<std::string>`代替`std::initializer_list<bool>`，这时非`std::initializer_list`构造函数将再次成为函数决议的候选者，因为没有办法把`int`和`bool`转换为`std::string`:
 
 ````cpp
-class Widget { 
-public:  
+class Widget {
+public:
     Widget(int i, bool b);                              //同之前一样
     Widget(int i, double d);                            //同之前一样
     //现在std::initializer_list元素类型为std::string
@@ -185,8 +179,8 @@ Widget w4{10, 5.0};      // 使用花括号初始化，现在调用第二个构�
 
 最终会调用默认构造函数。空的花括号意味着没有实参，不是一个空的`std::initializer_list`：
 ````cpp
-class Widget { 
-public:  
+class Widget {
+public:
     Widget();                                   //默认构造函数
     Widget(std::initializer_list<int> il);      //std::initializer_list构造函数
 
@@ -227,7 +221,7 @@ void doSomeWork(Ts&&... params)
 {
     create local T object from params...
     …
-} 
+}
 ````
 在现实中我们有两种方式实现这个伪代码（关于`std::forward`请参见[Item25](../5.RRefMovSemPerfForw/item25.md)）：
 ````cpp
@@ -236,7 +230,7 @@ T localObject{std::forward<Ts>(params)...};             //使用花括号
 ````
 考虑这样的调用代码：
 ````cpp
-std::vector<int> v; 
+std::vector<int> v;
 …
 doSomeWork<std::vector<int>>(10, 20);
 ````

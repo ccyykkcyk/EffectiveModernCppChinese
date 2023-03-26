@@ -1,11 +1,3 @@
-# 第2章 `auto`
-
-**CHAPTER 2 `auto`**
-
-从概念上来说，`auto`要多简单有多简单，但是它比看起来要微妙一些。使用它可以存储类型，当然，它也会犯一些错误，而且比之手动声明一些复杂类型也会存在一些性能问题。此外，从程序员的角度来说，如果按照符合规定的流程走，那`auto`类型推导的一些结果是错误的。当这些情况发生时，对我们来说引导`auto`产生正确的结果是很重要的，因为严格按照说明书上面的类型写声明虽然可行但是最好避免。
-
-本章简单的覆盖了`auto`的里里外外。
-
 ## 条款五：优先考虑`auto`而非显式类型声明
 
 **Item 5: Prefer `auto` to explicit type declarations**
@@ -39,7 +31,7 @@ void dwim(It b, It e)           //dwim（“do what I mean”）算法
 别担心，它只在过去是这样，到了C++11所有的这些问题都消失了，这都多亏了`auto`。`auto`变量从初始化表达式中推导出类型，所以我们必须初始化。这意味着当你在现代化C++的高速公路上飞奔的同时你不得不对只声明不初始化变量的老旧方法说拜拜：
 ````cpp
 int x1;                         //潜在的未初始化的变量
-	
+
 auto x2;                        //错误！必须要初始化
 
 auto x3 = 0;                    //没问题，x已经定义了
@@ -57,7 +49,7 @@ void dwim(It b,It e)
 ````
 因为使用[Item2](../1.DeducingTypes/item2.md)所述的`auto`类型推导技术，它甚至能表示一些只有编译器才知道的类型：
 ````cpp
-auto derefUPLess = 
+auto derefUPLess =
     [](const std::unique_ptr<Widget> &p1,       //用于std::unique_ptr
        const std::unique_ptr<Widget> &p2)       //指向的Widget类型的
     { return *p1 < *p2; };                      //比较函数

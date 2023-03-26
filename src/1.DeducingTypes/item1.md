@@ -1,13 +1,3 @@
-# 第1章 类型推导
-
-**CHAPTER 1 Deducing Types**
-
-C++98有一套类型推导的规则：用于函数模板的规则。C++11修改了其中的一些规则并增加了两套规则，一套用于`auto`，一套用于`decltype`。C++14扩展了`auto`和`decltype`可能使用的范围。类型推导的广泛应用，让你从拼写那些或明显或冗杂的类型名的暴行中脱离出来。它让C++程序更具适应性，因为在源代码某处修改类型会通过类型推导自动传播到其它地方。但是类型推导也会让代码更复杂，因为由编译器进行的类型推导并不总是如我们期望的那样进行。
-
-如果对于类型推导操作没有一个扎实的理解，要想写出有现代感的C++程序是不可能的。类型推导随处可见：在函数模板调用中，在大多数`auto`出现的地方，在`decltype`表达式出现的地方，以及C++14中令人费解的应用`decltype(auto)`的地方。
-
-这一章是每个C++程序员都应该掌握的知识。它解释了模板类型推导是如何工作的，`auto`是如何依赖类型推导的，以及`decltype`是如何按照它自己那套独特的规则工作的。它甚至解释了你该如何强制编译器使类型推导的结果可视，这能让你确认编译器的类型推导是否按照你期望的那样进行。
-
 ## 条款一：理解模板类型推导
 
 **Item 1: Understand template type deduction**
@@ -125,7 +115,7 @@ f(px);                          //T是const int，param的类型是const int*
 ````cpp
 template<typename T>
 void f(T&& param);              //param现在是一个通用引用类型
-		
+
 int x=27;                       //如之前一样
 const int cx=x;                 //如之前一样
 const int & rx=cx;              //如之前一样
@@ -173,7 +163,7 @@ f(rx);                          //T和param的类型都是int
 template<typename T>
 void f(T param);                //仍然以传值的方式处理param
 
-const char* const ptr =         //ptr是一个常量指针，指向常量对象 
+const char* const ptr =         //ptr是一个常量指针，指向常量对象
     "Fun with pointers";
 
 f(ptr);                         //传递const char * const类型的实参
@@ -272,5 +262,5 @@ f2(someFunc);                       //param被推导为指向函数的引用，
 + 在模板类型推导时，有引用的实参会被视为无引用，他们的引用会被忽略
 + 对于通用引用的推导，左值实参会被特殊对待
 + 对于传值类型推导，`const`和/或`volatile`实参会被认为是non-`const`的和non-`volatile`的
-+ 在模板类型推导时，数组名或者函数名实参会退化为指针，除非它们被用于初始化引用 
++ 在模板类型推导时，数组名或者函数名实参会退化为指针，除非它们被用于初始化引用
 
