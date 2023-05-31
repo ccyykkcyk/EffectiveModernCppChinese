@@ -1,0 +1,48 @@
+name: pdf build
+
+on:
+  workflow_dispatch: # Allow manual triggers
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: "windows-latest"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install dependence
+        run: |
+          cargo install -f --git https://github.com/HollowMan6/mdBook mdbook
+          cargo install --git https://github.com/HollowMan6/mdbook-pdf.git#v0.1.6
+          pip install mdbook-pdf-outline@git+https://github.com/HollowMan6/mdbook-pdf.git
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ matrix.repo }}
+          ref: ${{matrix.ref}}
+          path: ${{matrix.name}}
+      - name: Build Test Docs for PDF
+        shell: bash
+        run: |
+          if [ `grep -c "output.pdf" book.toml` -eq '0' ]; then
+            echo "[output.pdf]" >> book.toml
+            echo "display-header-footer = true" >> book.toml
+            echo "print-background = true" >> book.toml
+            echo "paper-width = 8" >> book.toml
+            echo "paper-height = 10" >> book.toml
+            echo "margin-top = 0.5" >> book.toml
+            echo "margin-bottom = 0.5" >> book.toml
+            echo "margin-left = 0.5" >> book.toml
+            echo "margin-right = 0.5" >> book.toml
+            echo "static-site-url = '${{ matrix.static-url }}'" >> book.toml
+            echo "header-template = \"<h3 style='font-size:8px; margin-left: 48%' class='title'></h3>\"" >> book.toml
+            echo "footer-template = \"<p style='font-size:10px; margin-left: 48%'><span class='pageNumber'></span> / <span class='totalPages'></span></p>\"" >> book.toml
+            echo "[output.pdf-outline]" >> book.toml
+          fi
+          mdbook build
+      - name: Upload PDF File to Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: PDF
+          path: book/pdf-outline/*.pdf
